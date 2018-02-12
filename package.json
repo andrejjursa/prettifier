@@ -10,6 +10,7 @@
   "license": "ISC",
   "devDependencies": {
     "code-prettify": "^0.1.0",
+    "jquery": "^3.3.1",
     "tinymce": "^4.7.6"
   }
 }
