@@ -1,0 +1,15 @@
+{
+  "name": "prettifier",
+  "version": "1.0.0",
+  "description": "Tinymce 4 plugin to use google code prettifier.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrej Jursa",
+  "license": "ISC",
+  "devDependencies": {
+    "code-prettify": "^0.1.0",
+    "tinymce": "^4.7.6"
+  }
+}
