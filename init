@@ -61,3 +61,5 @@ echo "      });" >> $html_file
 echo "    </script>" >> $html_file
 echo "  </body>" >> $html_file
 echo "</html>" >> $html_file
+
+node_modules/.bin/minify --output $CD/prettifier/plugin.min.js $CD/prettifier/plugin.js
