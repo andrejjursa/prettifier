@@ -1,48 +1,243 @@
 tinymce.PluginManager.add('prettifier', function(editor, url) {
+
+    var PluginManager = tinymce.util.Tools.resolve('tinymce.PluginManager');
+
+    var DOMUtils = tinymce.util.Tools.resolve('tinymce.dom.DOMUtils');
+
+    var Cell = function (initial) {
+        var value = initial;
+        var get = function () {
+            return value;
+        };
+        var set = function (v) {
+            value = v;
+        };
+        var clone = function () {
+            return Cell(get());
+        };
+        return {
+            get: get,
+            set: set,
+            clone: clone
+        };
+    };
+
+    var doPrettyPrint = function (element) {
+        if (typeof prettyPrintOne === 'undefined') {
+            return false;
+        }
+        var code = element.innerHTML;
+        var matches = element.className.match(/lang-(\w+)/);
+        var language = '';
+        if (matches) {
+            language = matches[1];
+        }
+        var prettified = prettyPrintOne(code, language);
+        element.innerHTML = prettified;
+    };
+
+    var isCodeNode = function(element) {
+        return element && element.nodeName === 'PRE' && element.className.indexOf('prettyprint') !== -1;
+    };
+
+    var getSelectedCodeNode = function(editor) {
+        var node = editor.selection.getNode();
+        if (isCodeNode(node)) {
+            return node;
+        }
+        return null;
+    };
+
+    var getCurrentCode = function (editor) {
+        var node = getSelectedCodeNode(editor);
+        if (node) {
+            return node.textContent;
+        }
+        return '';
+    };
+
+    var getCurrentLanguage = function (editor) {
+        var node = getSelectedCodeNode(editor);
+        if (node) {
+            var matches = node.className.match(/lang-(\w+)/);
+            return matches ? matches[1] : '';
+        }
+        return '';
+    };
+
+    var insertCode = function (editor, code, language) {
+        editor.undoManager.transact(function() {
+            var node = getSelectedCodeNode(editor);
+            console.log(code);
+            code = DOMUtils.DOM.encode(code);
+            console.log(code);
+            if (node) {
+                editor.dom.setAttrib(node, 'class', 'prettyprint lang-' + language);
+                node.innerHTML = code;
+                doPrettyPrint(node);
+                editor.selection.select(node);
+            } else {
+                editor.insertContent('<pre id="__new_code" class="prettyprint lang-' + language + '">' + code + '</pre>');
+                editor.selection.select(editor.$('#__new_code').removeAttr('id')[0]);
+            }
+        });
+    };
+
+    var trimArg = function(predicateFn) {
+        return function (arg1, arg2) {
+            return predicateFn(arg2);
+        };
+    };
+
+    var getContentCss = function (editor) {
+        return editor.settings.codesample_content_css;
+    };
+
+    var loadCss = function (editor, pluginUrl, addedInlineCss, addedCss) {
+        var linkElm;
+        var contentCss = getContentCss(editor);
+        if (editor.inline && addedInlineCss.get()) {
+            return;
+        }
+        if (!editor.inline && addedCss.get()) {
+            return;
+        }
+        if (editor.inline) {
+            addedInlineCss.set(true);
+        } else {
+            addedCss.set(true);
+        }
+        if (contentCss !== false) {
+            linkElm = editor.dom.create('link', {
+                rel: 'stylesheet',
+                href: contentCss ? contentCss : pluginUrl + '/css/prettify.css'
+            });
+            editor.getDoc().getElementsByTagName('head')[0].appendChild(linkElm);
+        }
+        var linkElm2 = editor.dom.create('link', {
+            rel: 'stylesheet',
+            href: pluginUrl + '/css/plugin.css'
+        });
+        editor.getDoc().getElementsByTagName('head')[0].appendChild(linkElm2);
+    };
+
+    var openWindow = function(editor) {
+        var code = getCurrentCode(editor);
+        var language = getCurrentLanguage(editor);
+
+        editor.windowManager.open({
+            title: 'Insert/Edit code',
+            minWidth: '600',
+            minHeight: '500',
+            layout: 'flex',
+            direction: 'column',
+            align: 'stretch',
+            body: [
+                {
+                    type: 'listbox',
+                    name: 'language',
+                    label: 'Language',
+                    values: [
+                        {
+                            text: 'HTML',
+                            value: 'html'
+                        },
+                        {
+                            text: 'PHP',
+                            value: 'php'
+                        }
+                    ],
+                    value: language
+                },
+                {
+                    type: 'textbox',
+                    name: 'code',
+                    ariaLabel: 'Code',
+                    multiline: true,
+                    spellcheck: false,
+                    flex: 1,
+                    style: 'direction: ltr; text-align: left;',
+                    classes: 'monospace',
+                    autofocus: true,
+                    value: code
+                }
+            ],
+            onsubmit: function(e) {
+                insertCode(editor, e.data.code, e.data.language);
+            }
+        });
+    };
+
     // Add a button that opens a window
     editor.addButton('prettifier', {
-        text: 'Code prettify',
-        icon: false,
-        onclick: function() {
-            // Open window
-            editor.windowManager.open({
-                title: 'Example plugin',
-                body: [
-                    {type: 'textbox', name: 'title', label: 'Title'}
-                ],
-                onsubmit: function(e) {
-                    // Insert content when the window form is submitted
-                    editor.insertContent('Title: ' + e.data.title);
-                }
-            });
-        }
+        cmd: 'prettifier',
+        title: 'Insert/Edit code',
+        text: 'Insert/Edit code',
+        icon: 'prettifier'
     });
 
     // Adds a menu item to the tools menu
     editor.addMenuItem('prettifier', {
-        text: 'Code prettify',
-        context: 'tools',
-        onclick: function() {
-            // Open window with a specific url
-            editor.windowManager.open({
-                title: 'Edit source code',
-                url: 'https://www.tinymce.com',
-                width: 800,
-                height: 600,
-                buttons: [{
-                    text: 'Close',
-                    onclick: 'close'
-                }]
+        cmd: 'prettifier',
+        text: 'Insert/Edit code',
+        icon: 'prettifier',
+        context: 'tools'
+    });
+
+    editor.on('PreProcess', function (e) {
+        editor.$('pre[contenteditable=false]', e.node).filter(trimArg(isCodeNode)).each(function (idx, elm) {
+            console.log(elm);
+            var $elm = editor.$(elm), code = elm.textContent;
+            console.log(code);
+            $elm.attr('class', $.trim($elm.attr('class')));
+            $elm.removeAttr('contentEditable');
+            $elm.empty().append(DOMUtils.DOM.encode(code));
+        });
+    });
+
+    editor.on('SetContent', function() {
+        var unprocessed = editor.$('pre').filter(trimArg(isCodeNode)).filter(function (idx, elm) {
+            return elm.contentEditable !== 'false';
+        });
+        if (unprocessed.length) {
+            editor.undoManager.transact(function () {
+                unprocessed.each(function (idx, elm) {
+                    editor.$(elm).find('br').each(function (idx, elm) {
+                        elm.parentNode.replaceChild(editor.getDoc().createTextNode('\n'), elm);
+                    });
+                    elm.contentEditable = false;
+                    console.log(elm);
+                    console.log(elm.textContent);
+                    elm.innerHTML = editor.dom.encode(elm.textContent);
+                    console.log(elm);
+                    doPrettyPrint(elm);
+                    elm.className = editor.$.trim(elm.className);
+                });
             });
         }
     });
 
-    return {
-        getMetadata: function () {
-            return  {
-                title: "Code prettify",
-                url: "http://exampleplugindocsurl.com"
-            };
+    var addedInlineCss = Cell(false);
+    var addedCss = Cell(false);
+
+    editor.addCommand('prettifier', function () {
+        var node = editor.selection.getNode();
+
+        if (editor.selection.isCollapsed() || isCodeNode(node)) {
+            openWindow(editor);
         }
+    });
+
+    editor.on('init', function() {
+        loadCss(editor, url, addedInlineCss, addedCss);
+    });
+
+    editor.on('dblclick', function(event) {
+        if (isCodeNode(event.target)) {
+            openWindow(editor);
+        }
+    });
+
+    return {
     };
 });

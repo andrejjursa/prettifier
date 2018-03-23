@@ -31,7 +31,7 @@ do
   fi
 done
 
-ln -s -s $CD/prettifier demo/js/tinymce/plugins/prettifier
+ln -s -d $CD/prettifier demo/js/tinymce/plugins/prettifier
 
 html_file=demo/index.html
 
@@ -53,8 +53,8 @@ echo "    </form>" >> $html_file
 echo "    <script type=\"text/javascript\">" >> $html_file
 echo "      jQuery('textarea').tinymce({" >> $html_file
 echo "        theme: 'modern'," >> $html_file
-echo "        plugins: 'prettifier'," >> $html_file
-echo "        toolbar: 'prettifier'" >> $html_file
+echo "        plugins: 'prettifier preview fullpage code codesample'," >> $html_file
+echo "        toolbar: 'formatselect | bold italic strikethrough forecolor backcolor | link | prettifier | preview | code codesample | fullpage'" >> $html_file
 echo "      });" >> $html_file
 echo "    </script>" >> $html_file
 echo "  </body>" >> $html_file
