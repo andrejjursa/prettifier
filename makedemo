@@ -1,0 +1,63 @@
+#!/bin/bash
+
+CD="$(pwd)"
+
+rm -rf demo
+
+mkdir demo
+
+mkdir demo/js
+
+ln -s -d $CD/node_modules/jquery/dist demo/js/jquery
+
+ln -s -d $CD/node_modules/code-prettify/loader demo/js/code-prettify
+
+mkdir demo/js/tinymce
+
+ln -s -d $CD/node_modules/tinymce/skins demo/js/tinymce/skins
+ln -s -d $CD/node_modules/tinymce/themes demo/js/tinymce/themes
+ln -s $CD/node_modules/tinymce/jquery.tinymce.js demo/js/tinymce/jquery.tinymce.js
+ln -s $CD/node_modules/tinymce/jquery.tinymce.min.js demo/js/tinymce/jquery.tinymce.min.js
+ln -s $CD/node_modules/tinymce/tinymce.js demo/js/tinymce/tinymce.js
+ln -s $CD/node_modules/tinymce/tinymce.min.js demo/js/tinymce/tinymce.min.js
+
+mkdir demo/js/tinymce/plugins
+
+for f in $CD/node_modules/tinymce/plugins/*
+do
+  if [ -d $f ] ; then
+    fname=$(basename $f)
+    ln -s -d $f demo/js/tinymce/plugins/$fname
+  fi
+done
+
+ln -s -s $CD/prettifier demo/js/tinymce/plugins/prettifier
+
+html_file=demo/index.html
+
+touch $html_file
+
+echo "<!DOCTYPE html>" >> $html_file
+echo "<html lang=\"en\">" >> $html_file
+echo "  <head>" >> $html_file
+echo "    <meta charset=\"utf-8\">" >> $html_file
+echo "    <script type=\"text/javascript\" src=\"js/jquery/jquery.min.js\"></script>" >> $html_file
+echo "    <script type=\"text/javascript\" src=\"js/tinymce/tinymce.min.js\"></script>" >> $html_file
+echo "    <script type=\"text/javascript\" src=\"js/tinymce/jquery.tinymce.min.js\"></script>" >> $html_file
+echo "    <script type=\"text/javascript\" src=\"js/code-prettify/prettify.js\"></script>" >> $html_file
+echo "  </head>" >> $html_file
+echo "  <body>" >> $html_file
+echo "    <form action=\"\" method=\"post\">" >> $html_file
+echo "      <textarea name=\"test\"></textarea>" >> $html_file
+echo "    </form>" >> $html_file
+echo "    <script type=\"text/javascript\">" >> $html_file
+echo "      jQuery('textarea').tinymce({" >> $html_file
+echo "        theme: 'modern'," >> $html_file
+echo "        plugins: 'prettifier'," >> $html_file
+echo "        toolbar: 'prettifier'" >> $html_file
+echo "      });" >> $html_file
+echo "    </script>" >> $html_file
+echo "  </body>" >> $html_file
+echo "</html>" >> $html_file
+
+

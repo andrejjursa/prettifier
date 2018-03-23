@@ -1,0 +1,5 @@
+#!/bin/bash
+
+CD="$(pwd)"
+
+node_modules/.bin/minify --output $CD/prettifier/plugin.min.js $CD/prettifier/plugin.js

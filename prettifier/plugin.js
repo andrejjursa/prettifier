@@ -25,7 +25,7 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
         onclick: function() {
             // Open window with a specific url
             editor.windowManager.open({
-                title: 'TinyMCE site',
+                title: 'Edit source code',
                 url: 'https://www.tinymce.com',
                 width: 800,
                 height: 600,
