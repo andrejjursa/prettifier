@@ -1,1 +1,1 @@
-.mce-i-prettifier:before { content: '\e603'; }
+i.mce-i-prettifier::before { content: "\e603"; }

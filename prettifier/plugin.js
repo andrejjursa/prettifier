@@ -181,7 +181,33 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
     };
 
     var getContentCss = function (editor) {
-        return editor.settings.codesample_content_css;
+        return editor.settings.prettifier_content_css;
+    };
+
+    var getLanguages = function (editor) {
+        var settingsLanguage = editor.settings.prettifier_languages;
+
+        var languages = defaultLanguages;
+
+        if (typeof settingsLanguage === 'object') {
+            languages = settingsLanguage;
+        }
+
+        return languages;
+    };
+
+    var getDialogWidth = function (editor) {
+        if (editor.settings.prettifier_dialog_width) {
+            return editor.settings.prettifier_dialog_width;
+        }
+        return 600;
+    };
+
+    var getDialogHeight = function (editor) {
+        if (editor.settings.prettifier_dialog_height) {
+            return editor.settings.prettifier_dialog_height;
+        }
+        return 500;
     };
 
     var loadCss = function (editor, pluginUrl, addedInlineCss, addedCss) {
@@ -205,21 +231,24 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
             });
             editor.getDoc().getElementsByTagName('head')[0].appendChild(linkElm);
         }
-        var linkElm2 = editor.dom.create('link', {
-            rel: 'stylesheet',
-            href: pluginUrl + '/css/plugin.css'
-        });
-        editor.getDoc().getElementsByTagName('head')[0].appendChild(linkElm2);
+        // var linkElm2 = editor.dom.create('link', {
+        //     rel: 'stylesheet',
+        //     href: pluginUrl + '/css/plugin.css'
+        // });
+        // editor.getDoc().getElementsByTagName('head')[0].appendChild(linkElm2);
     };
 
     var openWindow = function(editor) {
         var code = getCurrentCode(editor);
         var language = getCurrentLanguage(editor);
+        var allLanguages = getLanguages(editor);
+        var width = getDialogWidth(editor);
+        var height = getDialogHeight(editor);
 
         editor.windowManager.open({
             title: 'Insert/Edit code',
-            minWidth: '600',
-            minHeight: '500',
+            minWidth: width,
+            minHeight: height,
             layout: 'flex',
             direction: 'column',
             align: 'stretch',
@@ -228,7 +257,7 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
                     type: 'listbox',
                     name: 'language',
                     label: 'Language',
-                    values: defaultLanguages,
+                    values: allLanguages,
                     value: language
                 },
                 {
