@@ -22,6 +22,97 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
         };
     };
 
+    var defaultLanguages = [
+        {
+            text: 'Bash',
+            value: 'bsh'
+        },
+        {
+            text: 'C',
+            value: 'c'
+        },
+        {
+            text: 'C++ (cc)',
+            value: 'cc'
+        },
+        {
+            text: 'C++ (cpp)',
+            value: 'cpp'
+        },
+        {
+            text: 'C#',
+            value: 'cs'
+        },
+        {
+            text: 'C shell',
+            value: 'csh'
+        },
+        {
+            text: 'CYCAS',
+            value: 'cyc'
+        },
+        {
+            text: 'CodeView',
+            value: 'cv'
+        },
+        {
+            text: 'HTML (htm)',
+            value: 'htm'
+        },
+        {
+            text: 'HTML (html)',
+            value: 'html'
+        },
+        {
+            text: 'Java',
+            value: 'java'
+        },
+        {
+            text: 'JavaScript',
+            value: 'js'
+        },
+        {
+            text: 'Matlab',
+            value: 'm'
+        },
+        {
+            text: 'MXML',
+            value: 'mxml'
+        },
+        {
+            text: 'Perl script',
+            value: 'perl'
+        },
+        {
+            text: 'Perl module',
+            value: 'pm'
+        },
+        {
+            text: 'Prolog',
+            value: 'pl'
+        },
+        {
+            text: 'Ruby',
+            value: 'rb'
+        },
+        {
+            text: 'Shell',
+            value: 'sh'
+        },
+        {
+            text: 'XHTML',
+            value: 'xhtml'
+        },
+        {
+            text: 'XML',
+            value: 'xml'
+        },
+        {
+            text: 'XSL',
+            value: 'xsl'
+        }
+    ];
+
     var doPrettyPrint = function (element) {
         if (typeof prettyPrintOne === 'undefined') {
             return false;
@@ -137,16 +228,7 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
                     type: 'listbox',
                     name: 'language',
                     label: 'Language',
-                    values: [
-                        {
-                            text: 'HTML',
-                            value: 'html'
-                        },
-                        {
-                            text: 'PHP',
-                            value: 'php'
-                        }
-                    ],
+                    values: defaultLanguages,
                     value: language
                 },
                 {

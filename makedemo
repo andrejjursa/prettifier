@@ -48,13 +48,19 @@ echo "    <script type=\"text/javascript\" src=\"js/code-prettify/prettify.js\">
 echo "  </head>" >> $html_file
 echo "  <body>" >> $html_file
 echo "    <form action=\"\" method=\"post\">" >> $html_file
-echo "      <textarea name=\"test\"></textarea>" >> $html_file
+echo "      <textarea name=\"test\"></textarea><br><input type=\"submit\" value=\"Submit\">" >> $html_file
 echo "    </form>" >> $html_file
+echo "    <div id=\"preview\"></div>" >> $html_file
 echo "    <script type=\"text/javascript\">" >> $html_file
 echo "      jQuery('textarea').tinymce({" >> $html_file
 echo "        theme: 'modern'," >> $html_file
 echo "        plugins: 'prettifier preview fullpage code codesample'," >> $html_file
-echo "        toolbar: 'formatselect | bold italic strikethrough forecolor backcolor | link | prettifier | preview | code codesample | fullpage'" >> $html_file
+echo "        toolbar: 'formatselect | bold italic strikethrough forecolor backcolor | link | prettifier | preview | code codesample | fullpage'," >> $html_file
+echo "        height: 500," >> $html_file
+echo "        entity_encoding: 'raw'" >> $html_file
+echo "      });" >> $html_file
+echo "      jQuery('textarea').change(function() {" >> $html_file
+echo "        jQuery('#preview').html(jQuery(this).val());" >> $html_file
 echo "      });" >> $html_file
 echo "    </script>" >> $html_file
 echo "  </body>" >> $html_file
