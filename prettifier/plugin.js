@@ -156,19 +156,30 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
         return '';
     };
 
-    var insertCode = function (editor, code, language) {
+    var getCurrentLinenums = function (editor) {
+        var node = getSelectedCodeNode(editor);
+        if (node) {
+            var matches = node.className.match(/linenums/);
+            return matches ? 1 : 0;
+        }
+        return 0;
+    };
+
+    var insertCode = function (editor, code, language, linenums) {
         editor.undoManager.transact(function() {
             var node = getSelectedCodeNode(editor);
-            console.log(code);
             code = DOMUtils.DOM.encode(code);
-            console.log(code);
+            var linenumsAttr = '';
+            if (linenums > 0) {
+                linenumsAttr = 'linenums';
+            }
             if (node) {
-                editor.dom.setAttrib(node, 'class', 'prettyprint lang-' + language);
+                editor.dom.setAttrib(node, 'class', 'prettyprint lang-' + language + ' ' + linenumsAttr);
                 node.innerHTML = code;
                 doPrettyPrint(node);
                 editor.selection.select(node);
             } else {
-                editor.insertContent('<pre id="__new_code" class="prettyprint lang-' + language + '">' + code + '</pre>');
+                editor.insertContent('<pre id="__new_code" class="prettyprint lang-' + language + ' ' + linenumsAttr + '">' + code + '</pre>');
                 editor.selection.select(editor.$('#__new_code').removeAttr('id')[0]);
             }
         });
@@ -227,15 +238,13 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
         if (contentCss !== false) {
             linkElm = editor.dom.create('link', {
                 rel: 'stylesheet',
-                href: contentCss ? contentCss : pluginUrl + '/css/prettify.css'
+                href: contentCss ? contentCss : pluginUrl + '/css/prettify.min.css'
             });
             editor.getDoc().getElementsByTagName('head')[0].appendChild(linkElm);
         }
         if (typeof window.prettifier_plugin_global_css === 'undefined') {
             window.prettifier_plugin_global_css = true;
-            console.log('load once');
             var head = document.getElementsByTagName('HEAD');
-            console.log(head);
             var cssNode = document.createElement('LINK');
             cssNode.setAttribute('type', 'text/css');
             cssNode.setAttribute('rel', 'stylesheet');
@@ -247,6 +256,7 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
     var openWindow = function(editor) {
         var code = getCurrentCode(editor);
         var language = getCurrentLanguage(editor);
+        var linenums = getCurrentLinenums(editor);
         var allLanguages = getLanguages(editor);
         var width = getDialogWidth(editor);
         var height = getDialogHeight(editor);
@@ -277,10 +287,26 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
                     classes: 'monospace',
                     autofocus: true,
                     value: code
+                },
+                {
+                    type: 'listbox',
+                    name: 'linenums',
+                    label: 'Line numbers',
+                    values: [
+                        {
+                            text: 'Off',
+                            value: 0
+                        },
+                        {
+                            text: 'On',
+                            value: 1
+                        }
+                    ],
+                    value: linenums
                 }
             ],
             onsubmit: function(e) {
-                insertCode(editor, e.data.code, e.data.language);
+                insertCode(editor, e.data.code, e.data.language, e.data.linenums);
             }
         });
     };
@@ -302,9 +328,7 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
 
     editor.on('PreProcess', function (e) {
         editor.$('pre[contenteditable=false]', e.node).filter(trimArg(isCodeNode)).each(function (idx, elm) {
-            console.log(elm);
             var $elm = editor.$(elm), code = elm.textContent;
-            console.log(code);
             $elm.attr('class', $.trim($elm.attr('class')));
             $elm.removeAttr('contentEditable');
             $elm.empty().append(DOMUtils.DOM.encode(code));
@@ -322,10 +346,7 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
                         elm.parentNode.replaceChild(editor.getDoc().createTextNode('\n'), elm);
                     });
                     elm.contentEditable = false;
-                    console.log(elm);
-                    console.log(elm.textContent);
                     elm.innerHTML = editor.dom.encode(elm.textContent);
-                    console.log(elm);
                     doPrettyPrint(elm);
                     elm.className = editor.$.trim(elm.className);
                 });

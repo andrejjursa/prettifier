@@ -4,4 +4,4 @@ CD="$(pwd)"
 
 node_modules/.bin/minify --output $CD/prettifier/plugin.min.js $CD/prettifier/plugin.js
 node_modules/.bin/minify --output $CD/prettifier/css/plugin.min.css $CD/prettifier/css/plugin.css
-
+node_modules/.bin/minify --output $CD/prettifier/css/prettify.min.css $CD/prettifier/css/prettify.css
