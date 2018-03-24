@@ -231,11 +231,17 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
             });
             editor.getDoc().getElementsByTagName('head')[0].appendChild(linkElm);
         }
-        // var linkElm2 = editor.dom.create('link', {
-        //     rel: 'stylesheet',
-        //     href: pluginUrl + '/css/plugin.css'
-        // });
-        // editor.getDoc().getElementsByTagName('head')[0].appendChild(linkElm2);
+        if (typeof window.prettifier_plugin_global_css === 'undefined') {
+            window.prettifier_plugin_global_css = true;
+            console.log('load once');
+            var head = document.getElementsByTagName('HEAD');
+            console.log(head);
+            var cssNode = document.createElement('LINK');
+            cssNode.setAttribute('type', 'text/css');
+            cssNode.setAttribute('rel', 'stylesheet');
+            cssNode.setAttribute('href', pluginUrl + '/css/plugin.min.css');
+            head[0].appendChild(cssNode);
+        }
     };
 
     var openWindow = function(editor) {
@@ -283,7 +289,6 @@ tinymce.PluginManager.add('prettifier', function(editor, url) {
     editor.addButton('prettifier', {
         cmd: 'prettifier',
         title: 'Insert/Edit code',
-        text: 'Insert/Edit code',
         icon: 'prettifier'
     });
 
